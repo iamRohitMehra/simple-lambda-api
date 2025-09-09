@@ -1,0 +1,45 @@
+name: Deploy Lambda API
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::<YOUR_ACCOUNT_ID>:role/<YourGitHubRole>
+          aws-region: ap-south-1   # Change to your region
+
+      - name: Package Lambda1
+        run: |
+          cd lambda1
+          zip -r ../lambda1.zip .
+          cd ..
+          aws s3 cp lambda1.zip s3://<your-artifact-bucket>/lambda1.zip
+
+      - name: Package Lambda2
+        run: |
+          cd lambda2
+          zip -r ../lambda2.zip .
+          cd ..
+          aws s3 cp lambda2.zip s3://<your-artifact-bucket>/lambda2.zip
+
+      - name: Deploy with CloudFormation
+        run: |
+          aws cloudformation deploy \
+            --stack-name simple-lambda-api \
+            --template-file template.yaml \
+            --capabilities CAPABILITY_IAM
