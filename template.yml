@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Simple API Gateway with 2 Lambda functions
+
+Resources:
+  LambdaOne:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: LambdaOne
+      Handler: app.handler
+      Runtime: python3.9
+      Code:
+        S3Bucket: !Ref ArtifactBucket
+        S3Key: lambda1.zip
+      Role: !GetAtt LambdaExecutionRole.Arn
+
+  LambdaTwo:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: LambdaTwo
+      Handler: app.handler
+      Runtime: python3.9
+      Code:
+        S3Bucket: !Ref ArtifactBucket
+        S3Key: lambda2.zip
+      Role: !GetAtt LambdaExecutionRole.Arn
+
+  ApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: SimpleLambdaApi
+
+  ApiResource1:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: lambda1
+      RestApiId: !Ref ApiGateway
+
+  ApiResource2:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: lambda2
+      RestApiId: !Ref ApiGateway
+
+  ApiMethod1:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ResourceId: !Ref ApiResource1
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: 
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaOne.Arn}/invocations
+
+  ApiMethod2:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ResourceId: !Ref ApiResource2
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: 
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaTwo.Arn}/invocations
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+Outputs:
+  ApiUrl:
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod/"
+    Description: "API Gateway endpoint URL"
