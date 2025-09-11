@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Simple API Gateway with 2 Lambda functions
 
 Parameters:
-  ArtifactBucket:
+  ArtifactBucket: 
     Type: String
     Description: S3 bucket where Lambda deployment packages are stored
 
