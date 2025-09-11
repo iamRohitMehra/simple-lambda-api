@@ -20,7 +20,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::<YOUR_ACCOUNT_ID>:role/<YourGitHubRole>
+          role-to-assume: arn:arn:aws:iam::214401628153:role/Githubrole-11-sep
           aws-region: ap-south-1   # Change to your region
 
       - name: Package Lambda1
@@ -28,14 +28,14 @@ jobs:
           cd lambda1
           zip -r ../lambda1.zip .
           cd ..
-          aws s3 cp lambda1.zip s3://<your-artifact-bucket>/lambda1.zip
+          aws s3 cp lambda1.zip s3://<rohit-artifacts-dev/lambda1.zip
 
       - name: Package Lambda2
         run: |
           cd lambda2
           zip -r ../lambda2.zip .
           cd ..
-          aws s3 cp lambda2.zip s3://<your-artifact-bucket>/lambda2.zip
+          aws s3 cp lambda2.zip s3://rohit-artifacts-dev/lambda2.zip
 
       - name: Deploy with CloudFormation
         run: |
