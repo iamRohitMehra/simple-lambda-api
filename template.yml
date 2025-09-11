@@ -1,7 +1,25 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Simple API Gateway with 2 Lambda functions
 
+Parameters:
+  ArtifactBucket:
+    Type: String
+    Description: S3 bucket where Lambda deployment packages are stored
+
 Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
   LambdaOne:
     Type: AWS::Lambda::Function
     Properties:
@@ -69,20 +87,17 @@ Resources:
         Uri: 
           Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaTwo.Arn}/invocations
 
-  LambdaExecutionRole:
-    Type: AWS::IAM::Role
+  # Add a Deployment & Stage so the API actually works
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
     Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      RestApiId: !Ref ApiGateway
+      StageName: stage
+    DependsOn:
+      - ApiMethod1
+      - ApiMethod2
 
 Outputs:
   ApiUrl:
-    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod/"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/stage/"
     Description: "API Gateway endpoint URL"
