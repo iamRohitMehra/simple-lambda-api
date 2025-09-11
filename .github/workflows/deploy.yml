@@ -31,7 +31,7 @@ jobs:
           cd lambda1
           zip -r ../lambda1.zip .
           cd ..
-          aws s3 cp lambda1.zip s3://<rohit-artifacts-dev/lambda1.zip
+          aws s3 cp lambda1.zip s3://rohit-artifacts-dev/lambda1.zip   
 
       - name: Package Lambda2
         run: |
