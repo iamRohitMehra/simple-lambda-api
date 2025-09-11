@@ -40,9 +40,14 @@ jobs:
           cd ..
           aws s3 cp lambda2.zip s3://rohit-artifacts-dev/lambda2.zip
 
+      - name: Debug repo contents
+        run: ls -R
+
+
+
       - name: Deploy with CloudFormation
         run: |
           aws cloudformation deploy \
             --stack-name simple-lambda-api \
-            --template-file template.yaml \
+            --template-file template.yml \
             --capabilities CAPABILITY_IAM
