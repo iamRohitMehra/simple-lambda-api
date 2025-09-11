@@ -24,7 +24,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::214401628153:role/Githubrole-11-sep
-          aws-region: ap-south-1   # Change to your region
+          aws-region: ap-south-1   # Change to your region to new
 
       - name: Package Lambda1
         run: |
