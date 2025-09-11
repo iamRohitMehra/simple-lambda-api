@@ -51,3 +51,4 @@ jobs:
             --stack-name simple-lambda-api \
             --template-file template.yml \
             --capabilities CAPABILITY_IAM
+            --parameter-overrides ArtifactBucket=rohit-artifacts-dev
